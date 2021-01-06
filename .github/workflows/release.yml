@@ -1,0 +1,67 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  UPLOAD_LAMBDA: false
+
+jobs:
+  test:
+    name: Test lambda function
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Test
+        run: yarn test
+
+  build-and-upload:
+    name: Build GitHub action and AWS lambda function
+    needs: test
+    if: "false" # To be removed
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build lambda distribution
+        run: yarn dist
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload new build to AWS lambda
+        run: |
+          aws lambda update-function-code --function-name "$FUNCTION_ARN" --zip-file "fileb://$(pwd)/out/lambda.zip"
+        env:
+          FUNCTION_ARN: ${{ secrets.LAMBDA_FUNCTION_ARN }}
+
+  test-new-version:
+    name: Test uploaded lambda
+    needs: build-and-upload
+    if: "false" # To be removed
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Integration tests
+        run: yarn test
+        env:
+          LAMBDA_URL: ${{ secrets.LAMBDA_URL }}

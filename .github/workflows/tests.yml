@@ -1,0 +1,61 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  terraform:
+    name: Validate Terraform code
+    runs-on: ubuntu-latest
+
+    env:
+      TERRAFORM_VERSION: 0.13.5
+      TERRAFORM_WORK_DIR: ./terraform
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Terraform Init
+        working-directory: ${{ env.TERRAFORM_WORK_DIR }}
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: ${{ env.TERRAFORM_WORK_DIR }}
+        run: terraform validate
+        env:
+          AWS_DEFAULT_REGION: ca-central-1 # https://github.com/hashicorp/terraform/issues/21408#issuecomment-495746582
+
+  test:
+    name: Test lambda function
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Test
+        run: yarn test
+
+  build:
+    name: Build lambda function
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build lambda distribution
+        run: yarn dist

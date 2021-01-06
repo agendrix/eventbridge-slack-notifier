@@ -1,0 +1,24 @@
+{
+  "name": "terraform-aws-lambda",
+  "version": "0.2.0",
+  "scripts": {
+    "test": "mocha -r ts-node/register test/**/*.spec.ts",
+    "test:watch": "yarn test --watch --watch-extensions ts",
+    "build": "rm -rf ./dist && yarn tsc",
+    "postbuild": "cp package.json yarn.lock LICENSE README.md ./dist && cd dist && yarn install --production",
+    "zip": "cd dist && mkdir -p ../out && zip -q -FSr ../out/lambda .",
+    "dist": "yarn build && yarn zip"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.64",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^14.11.2",
+    "aws-sdk": "^2.785.0",
+    "mocha": "^6.2.0",
+    "prettier": "^2.1.2",
+    "request": "^2.88.2",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
+  },
+  "dependencies": {}
+}

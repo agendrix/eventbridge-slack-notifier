@@ -1,0 +1,1 @@
+import "./libs/aws-sdk";
