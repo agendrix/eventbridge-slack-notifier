@@ -1,6 +1,6 @@
 import assert from "assert";
 import { Button }from "@slack/web-api";
-import { markdownTextBlock, formatEvent, formatContext, formatButtons, formatFields, DEFAULT_EVENT } from "../lambda/utils";
+import { markdownTextBlock, formatEvent, formatContext, formatButtons, formatFields, DEFAULT_EVENT, formatBody } from "../lambda/utils";
 import { PAYLOAD } from "./mocks";
 
 describe("markdownTextBlock", () => {
@@ -112,7 +112,7 @@ describe("formatFields", () => {
     assert.ok(formattedFields.fields);
 
     const field = fields.shift();
-    assert.deepStrictEqual(formattedFields.fields.shift(), markdownTextBlock(field?.text, `*${field?.label}*`));
+    assert.deepStrictEqual(formattedFields.fields.shift(), markdownTextBlock(`\n${field?.text}`, `*${field?.label}*`));
   })
 
   it("filters fields with falsy text", async () => {
@@ -126,6 +126,36 @@ describe("formatFields", () => {
   it("handles undefined fields", async () => {
     const formattedFields = formatFields();
     assert.strictEqual(formattedFields, undefined);
+  })
+});
+
+describe("formatBody", () => {
+  it("has a type property", async () => {
+    const { body } = PAYLOAD
+    const formattedBody = formatBody(body);
+    assert.ok(formattedBody);
+    assert.ok(formattedBody.type);
+  });
+
+  it("has a text property", async () => {
+    const { body } = PAYLOAD
+    const formattedBody = formatBody(body);
+    assert.ok(formattedBody);
+    assert.ok(formattedBody.text);
+  });
+
+  it("format event as a section block", async () => {
+    const { body } = PAYLOAD
+    const formattedBody = formatBody(body);
+    assert.deepStrictEqual(formattedBody, {
+      type: 'section',
+      text: markdownTextBlock(`${PAYLOAD.body.label}: ${PAYLOAD.body.text}`)
+    });
+  })
+
+  it("handles undefined event", async () => {
+    const formattedBody = formatBody();
+    assert.strictEqual(formattedBody, undefined) ;
   })
 });
 

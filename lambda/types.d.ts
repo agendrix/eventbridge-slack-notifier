@@ -16,6 +16,7 @@ export type Payload = {
   event: string,
   context: Array<Text> | undefined,
   fields: Array<Text> | undefined,
+  body: Text | undefined,
   links: Array<Link> | undefined,
   attachment: object | undefined
 }

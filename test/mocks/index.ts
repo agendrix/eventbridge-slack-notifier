@@ -28,6 +28,10 @@ export const PAYLOAD = {
         "text": ""
       }
     ],
+    "body": {
+      "label": "Body",
+      "text": "Body content"
+    },
     "links": [
       {
         "label": "Search google",

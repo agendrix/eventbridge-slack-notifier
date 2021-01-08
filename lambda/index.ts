@@ -1,14 +1,14 @@
 import { WebClient, WebAPICallResult, ContextBlock, SectionBlock, ActionsBlock, Block, DividerBlock } from "@slack/web-api";
 import { Handler } from "aws-lambda";
 import { Payload, Text } from "./types";
-import { formatEvent, formatContext, formatFields, formatButtons } from "./utils"
+import { formatEvent, formatContext, formatFields, formatButtons, formatBody } from "./utils"
 import AWS from "aws-sdk";
 
 const handler: Handler = async (payload: Payload) => {
   const slackClient = new WebClient(process.env.SLACK_ACCESS_TOKEN);
 
   let { context } = payload;
-  const { event, fields, links, attachment } = payload;
+  const { event, fields, body, links, attachment } = payload;
 
   context = context || [];
   const account = await fetchAccountAlias();
@@ -17,6 +17,7 @@ const handler: Handler = async (payload: Payload) => {
   const formattedEvent: SectionBlock = formatEvent(event);
   const formattedContext: ContextBlock | undefined = formatContext(context);
   const formattedFields: SectionBlock | undefined = formatFields(fields);
+  const formattedBody: SectionBlock | undefined = formatBody(body);
   const formattedButtons: ActionsBlock | undefined = formatButtons(links);
 
   const blocks = [
@@ -24,6 +25,7 @@ const handler: Handler = async (payload: Payload) => {
     formattedContext,
     divider,
     formattedFields,
+    formattedBody,
     formattedButtons
   ].filter(block => block) as Array<Block>
 

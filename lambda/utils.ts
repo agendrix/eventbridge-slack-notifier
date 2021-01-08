@@ -17,6 +17,17 @@ export function formatEvent(event = "No event property was provided"): SectionBl
   }
 }
 
+export function formatBody(body: Text | undefined = undefined): SectionBlock | undefined {
+  if (body) {
+    return {
+      type: "section",
+      text: markdownTextBlock(body?.text, body?.label)
+    }
+  }
+  
+  return undefined;
+}
+
 export function formatContext(context: Array<Text> = []): ContextBlock | undefined {
   const contextElements = context
     .filter(({ text }) => text)
