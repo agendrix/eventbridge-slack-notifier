@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  release:
+    types: [prereleased, edited, released]
+
+jobs:
+  build:
+    name: Build AWS lambda function
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: "main"
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Get release tag
+        id: ref
+        run: |
+          TAG=${REF#"$PREFIX"}
+          echo "::set-output name=tag::$TAG"
+        env:
+          REF: ${{ github.ref }}
+          PREFIX: "refs/tags/"
+
+      - name: Update package.json version
+        run: |
+          tmp=$(mktemp)
+          jq '.version = "${{ steps.ref.outputs.tag }}"' package.json > "$tmp"
+          mv "$tmp" package.json
+
+      - name: Build lambda distribution
+        run: yarn dist
+
+      - name: Setup GitHub git user
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+      - name: Push builds
+        run: |
+          git add package.json terraform/lambda.zip
+          git commit -m "Build app for release ${{ steps.ref.outputs.tag }}"
+          git push
+
+      - name: Move release tag to latest commit
+        run: |
+          git tag --force "${{ steps.ref.outputs.tag }}" $(git rev-parse HEAD)
+          git push --force --tags

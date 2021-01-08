@@ -1,12 +1,12 @@
 {
-  "name": "terraform-aws-lambda",
-  "version": "0.2.0",
+  "name": "eventbridge-slack-notifier",
+  "version": "v1.0.0",
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
     "test:watch": "yarn test --watch --watch-extensions ts",
     "build": "rm -rf ./dist && yarn tsc",
     "postbuild": "cp package.json yarn.lock LICENSE README.md ./dist && cd dist && yarn install --production",
-    "zip": "cd dist && mkdir -p ../out && zip -q -FSr ../out/lambda .",
+    "zip": "cd dist && zip -FSr ../terraform/lambda .",
     "dist": "yarn build && yarn zip"
   },
   "devDependencies": {
@@ -16,9 +16,10 @@
     "aws-sdk": "^2.785.0",
     "mocha": "^6.2.0",
     "prettier": "^2.1.2",
-    "request": "^2.88.2",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@slack/web-api": "^5.15.0"
+  }
 }
