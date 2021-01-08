@@ -120,3 +120,13 @@ module "eventbridge_slack_notifier" {
   }
 }
 ```
+
+### Resources:
+
+[How to create a rule pattern](https://docs.aws.amazon.com/eventbridge/latest/userguide/eventbridge-and-event-patterns.html)
+
+[Input transformer](https://docs.aws.amazon.com/eventbridge/latest/userguide/transform-input.html)
+
+[Input transformer Terraform](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target#input_transformer)
+
+[Common input transformer issues](https://docs.aws.amazon.com/eventbridge/latest/userguide/transform-input.html#transform-input-issues)
