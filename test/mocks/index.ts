@@ -14,7 +14,7 @@ export const PAYLOAD = {
         "text": ""
       }
     ],
-    "fields": [
+    fields: [
       { 
         "label": "Cluster",
         "text": "Cluster Name" 
@@ -28,11 +28,11 @@ export const PAYLOAD = {
         "text": ""
       }
     ],
-    "body": {
+    body: {
       "label": "Body",
       "text": "Body content"
     },
-    "links": [
+    links: [
       {
         "label": "Search google",
         "url": "https://google.com"
@@ -41,6 +41,6 @@ export const PAYLOAD = {
         "label": "Missing",
         "url": ""
       },
-    ],
+    ]
   } 
 

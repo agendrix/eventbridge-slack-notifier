@@ -21,7 +21,7 @@ export function formatBody(body: Text | undefined = undefined): SectionBlock | u
   if (body) {
     return {
       type: "section",
-      text: markdownTextBlock(body?.text, body?.label)
+      text: markdownTextBlock(`\n${body.text}`, `*${body.label}*`)
     }
   }
   
