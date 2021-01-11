@@ -149,7 +149,7 @@ describe("formatBody", () => {
     const formattedBody = formatBody(body);
     assert.deepStrictEqual(formattedBody, {
       type: 'section',
-      text: markdownTextBlock(`${PAYLOAD.body.label}: ${PAYLOAD.body.text}`)
+      text: markdownTextBlock(`\n${PAYLOAD.body.text}`, `*${PAYLOAD.body.label}*`)
     });
   })
 
