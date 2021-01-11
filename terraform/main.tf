@@ -29,11 +29,6 @@ resource "aws_lambda_function" "lambda" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "log_group" {
-  name              = "/aws/lambda/${aws_lambda_function.lambda.function_name}"
-  retention_in_days = 7
-}
-
 resource "aws_iam_role" "lambda_execution_role" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -47,11 +42,6 @@ resource "aws_iam_role" "lambda_execution_role" {
       }
     ]
   })
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_basic_execution_policy" {
-  role       = aws_iam_role.lambda_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 resource "aws_iam_role_policy" "allow_list_account_aliases" {
