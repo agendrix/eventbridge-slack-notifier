@@ -18,7 +18,7 @@ export function formatEvent(event = "No event property was provided"): SectionBl
 }
 
 export function formatBody(body: Text | undefined = undefined): SectionBlock | undefined {
-  if (body) {
+  if (body?.text) {
     return {
       type: "section",
       text: markdownTextBlock(`\n${body.text}`, `*${body.label}*`)
