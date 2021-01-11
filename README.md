@@ -17,6 +17,7 @@ type Payload = {
   event: string;
   context: Array<Text> | undefined;
   fields: Array<Text> | undefined;
+  body: Text | undefined;
   links: Array<Link> | undefined;
   attachment: object | undefined;
 };
@@ -34,9 +35,11 @@ type Text = {
 
 `event`: String representing the event name. Required
 
-`context`: Object containing event context information (Time, Event Source, etc). Optional
+`context`: Array containing event context information (Time, Event Source, etc). Optional
 
-`fields`: Object containing event details. Each key value pair will be rendered in the main message section. Optional
+`fields`: Array containing event details. Field objects will be rendered side by side. Optional
+
+`boyd`: Message body. Optional
 
 `links`: Array containing Link objects. Each Link will be rendered has a button. Optional
 
@@ -60,28 +63,24 @@ module "eventbridge_slack_notifier" {
   }
 
   event_pattern = jsonencode({
-    source      = ["aws.ecs"]
-    detail-type = ["ECS Task State Change"]
-    detail = {
-      lastStatus    = ["STOPPED"],
-      stoppedReason = ["Essential container in task exited"]
-      clusterArn    = [aws_ecs_cluster.cluster.arn]
-    }
+    source      = ["aws.cloudwatch"]
+    detail-type = ["CloudWatch Alarm State Change"]
   })
 
 
   input_transformer = {
     input_paths = {
-      event          = "$.detail.stoppedReason"
-      source         = "$.source"
-      time           = "$.time"
-      container      = "$.detail.containers[0].name"
-      service        = "$.detail.group"
+      source                     = "$.source"
+      time                       = "$.time"
+      alarm                      = "$.detail.alarmName"
+      previous_state_value       = "$.detail.previousState.value"
+      current_state_value        = "$.detail.state.value"
+      current_state_value_reason = "$.detail.state.reason"
     }
 
     input_template = <<EOF
     {
-      "event": <event>,
+      "event": <alarm>,
       "context": [
         {
           "label": "Source",
@@ -94,27 +93,24 @@ module "eventbridge_slack_notifier" {
       ],
       "fields": [
         {
-          "label": "Cluster",
-          "text": "${aws_ecs_cluster.cluster.name}"
+          "label": "Previous Alarm State",
+          "text": <previous_state_value>
         },
         {
-          "label": "Service",
-          "text": <service>
-        },
-        {
-          "label": "Container",
-          "text": <container>
-        },
+          "label": "Current Alarm State",
+          "text": <current_state_value>
+        }
       ],
+      "body": {
+        "label": "Details",
+        "text": <current_state_value_reason>
+      },
       "links": [
         {
-          "label": "View tasks",
-          "url": "https://ca-central-1.console.aws.amazon.com/ecs/home?region=ca-central-1#/clusters/${aws_ecs_cluster.cluster.name}/tasks"
-        },
-      ],
-      "attachment": {
-        "event" : <aws.events.event>,
-      }
+          "label": "View alarms",
+          "url": "https://ca-central-1.console.aws.amazon.com/cloudwatch/home?region=ca-central-1#alarmsV2:"
+        }
+      ]
     }
     EOF
   }
