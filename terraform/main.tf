@@ -11,7 +11,7 @@ resource "aws_lambda_function" "lambda" {
   handler          = "index.handler"
   role             = aws_iam_role.lambda_execution_role.arn
 
-  runtime = "nodejs12.x"
+  runtime = "nodejs18.x"
 
   environment {
     variables = {
