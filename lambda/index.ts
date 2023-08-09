@@ -2,7 +2,7 @@ import { WebClient, WebAPICallResult, ContextBlock, SectionBlock, ActionsBlock, 
 import { Handler } from "aws-lambda";
 import { Payload, Text } from "./types";
 import { formatEvent, formatContext, formatFields, formatButtons, formatBody } from "./utils"
-import AWS from "aws-sdk";
+import { IAMClient, ListAccountAliasesCommand } from "@aws-sdk/client-iam";
 
 const handler: Handler = async (payload: Payload) => {
   const slackClient = new WebClient(process.env.SLACK_ACCESS_TOKEN);
@@ -51,7 +51,9 @@ const handler: Handler = async (payload: Payload) => {
 
 
 async function fetchAccountAlias(): Promise<Text | undefined> {
-  let accountAlias = (await new AWS.IAM().listAccountAliases().promise()).AccountAliases.shift(); 
+  const client = new IAMClient();
+  const command = new ListAccountAliasesCommand({});
+  let accountAlias = (await client.send(command)).AccountAliases?.shift(); 
   return accountAlias ? { label: "Account", text: accountAlias } : undefined 
 }
 
