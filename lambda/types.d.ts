@@ -18,5 +18,21 @@ export type Payload = {
   fields: Array<Text> | undefined,
   body: Text | undefined,
   links: Array<Link> | undefined,
-  attachment: object | undefined
+  attachment: object | undefined,
+  key?: string,
+  status?: string,
+  time?: string
+}
+
+export type Transition = {
+  status: string,
+  at: string,
+  reason?: string
+}
+
+export type Episode = {
+  key: string,
+  event: string,
+  transitions: Array<Transition>,
+  resolved: boolean
 }
