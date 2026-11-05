@@ -1,11 +1,13 @@
-import { WebClient, WebAPICallResult, ContextBlock, SectionBlock, ActionsBlock, Block, DividerBlock } from "@slack/web-api";
+import { WebClient, ContextBlock, SectionBlock, ActionsBlock, Block, DividerBlock } from "@slack/web-api";
 import { Handler } from "aws-lambda";
 import { Payload, Text } from "./types";
 import { formatEvent, formatContext, formatFields, formatButtons, formatBody } from "./utils"
+import { notifyEpisode } from "./episode";
 import { IAMClient, ListAccountAliasesCommand } from "@aws-sdk/client-iam";
 
 const handler: Handler = async (payload: Payload) => {
   const slackClient = new WebClient(process.env.SLACK_ACCESS_TOKEN);
+  const channel = process.env.SLACK_CHANNEL as string;
 
   let { context } = payload;
   const { event, fields, body, links, attachment } = payload;
@@ -13,6 +15,11 @@ const handler: Handler = async (payload: Payload) => {
   context = context || [];
   const account = await fetchAccountAlias();
   context = account ? [account, ...context] : context
+
+  if (payload.key) {
+    await notifyEpisode(slackClient, channel, { ...payload, context });
+    return;
+  }
 
   const formattedEvent: SectionBlock = formatEvent(event);
   const formattedContext: ContextBlock | undefined = formatContext(context);
@@ -30,8 +37,8 @@ const handler: Handler = async (payload: Payload) => {
   ].filter(block => block) as Array<Block>
 
 
-  const response: WebAPICallResult = await slackClient.chat.postMessage({
-    channel: process.env.SLACK_CHANNEL as string,
+  const response = await slackClient.chat.postMessage({
+    channel,
     text: event,
     blocks
   })
@@ -39,7 +46,7 @@ const handler: Handler = async (payload: Payload) => {
 
   if (response.ok && attachment) {
     await slackClient.files.upload({
-      channels: process.env.SLACK_CHANNEL as string,
+      channels: channel,
       thread_ts: response.ts as string,
       content: JSON.stringify(attachment),
       filename: "attachment.json",
